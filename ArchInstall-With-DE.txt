@@ -1,0 +1,179 @@
+#################################
+#   Arch Linux Vanilla Install  #
+#################################
+
+1. Setup Networking:
+- iwctl
+-- device list
+-- station wlan0 scan
+-- station wlan0 get-networks
+-- station wlan0 connect ATTHmDQys2
+-- exit
+
+
+2. Set/Sync Time & Install necessities
+-- timedatectl set-ntp true
+-- timedatectl set-timezone America/Chicago
+-- timedatectl status
+-- pacman -Syu terminus-font
+-- pacman -Syu zsh
+
+3. Setup CFDisk/Partitions
+-- cfdisk /dev/sdc
+
+Partition #1 - Size: 512M / Type: EFI
+Partition #2 - Size: ??? / Type: Linux Filesystem
+-- Write And Exit
+
+
+4. Format the Partitions
+-- mkfs.fat -F32 /dev/sdc1 (EFI)
+-- mkfs.ext4 /dev/sdc2 (Root Folder)
+
+5. Mount the Root Partition
+-- mount /dev/sdc2 /mnt
+
+6. Mount the EFI (Bootloader) Partition
+-- mkdir /mnt/efi
+-- mount /dev/sdc1 /mnt/efi
+
+7. Install base linux firmware packages
+-- pacstrap /mnt base linux linux-firmware
+
+8. Generate UUID for disk
+-- genfstab -U /mnt >> /mnt/etc/fstab
+
+9. Change to Root directory
+-- arch-chroot /mnt
+
+10. Install wireless network manager
+-- pacman -Syu iwd
+-- pacman -Syu netctl dialog dhcpcd wpa_supplicant ifplugd
+
+11. Add user with password
+-- useradd -G wheel,audio,video -m -s /bin/zsh username
+-- passwd binary
+
+12. Setup root password
+-- passwd
+
+13. Install Sudo
+-- pacman -Syu sudo
+
+14. Install nano & vim
+-- pacman -Syu nano vim
+
+15. Configure Sudo Group (type in the terminal):
+-- EDITOR=nano visudo
+Find the %wheel line and uncomment it out as we need it.
+
+16. Setup the Bootloader
+-- pacman -Syu grub efibootmgr
+-- grub-install --target=x86_64-efi --efi-directory=/efi/ --bootloader-id=Arch
+-- grub-mkconfig -o /boot/grub/grub.cfg
+
+17. Exit and Reboot!
+
+#################################
+#	Post Install Setup      #
+#################################
+
+# Install NetworkManager
+pacman -S networkmanager network-manager-applet
+
+
+1. Setup Locale
+-- nano /etc/locale.gen
+-- Uncomment en_US.UTF-8
+-- locale-gen
+-- nano /etc/locale.conf
+-- type: LANG=en_US.UTF-8
+-- save file and exit
+
+2. Setup Hostname
+-- nano /etc/hostname
+-- type hostname and save file.
+-- nano /etc/hosts
+-- Add the following:
+127.0.0.1	localhost
+::1		localhost
+127.0.1.1	hostname.local	hostname
+-- save and exit.
+
+
+2. Setting Networking:
+-- systemctl enable iwd.service
+-- systemctl start iwd.service
+-- systemctl enable systemd-resolved.service
+-- systemctl start systemd-resolved.service
+-- nano /etc/iwd/main.conf
+-- ADD: 
+[General]
+EnableNetworkConfiguration=true
+
+[Network]
+NameResolvingService=systemd
+-- save and exit
+
+-- iwctl
+(Follow the original iwctl instructions)
+
+
+#############################
+# Setup Desktop Enviornment #
+#############################
+
+1. Setup Display Manager & Server!
+-- pacman -S xorg-server xorg-apps xorg-xinit
+-- use default option at prompt
+
+2. Install Graphics Driver
+# NVIDIA and VESA (Basic drivers for fallback) ->
+-- pacman -S xf86-video-nouveau xf86-video-vesa
+
+3. Install the Display Manager (Login Screen)
+# KDE 		- sddm
+# KDE4		- kdm*
+# XFCE 	- lightdm
+# GNOME 	- gdm
+# LXDE		- lxdm
+# Universal Display Managers:
+# lightdm, mdm-display-manager, slim, xorg-xdm
+-- pacman -S lightdm lightdm-gtk-greeter
+
+4. Install Minimal Desktop Enviornment
+# KDE		- plasma
+# Cinnamon	- cinnamon
+# GNOME	- gnome
+# LXDE		- lxde or lxde-gtk3
+# MATE		- mate or mate-gtk3
+# XFCE		- xfce4
+
+5. Install Desktop Enviornment Goodies
+# KDE		- kde-applications
+# Cinnamon	- NA but install nemo-fireroller archive utility
+# GNOME	- gnome-extra
+# LXDE		- NA
+# MATE		- mate-extra
+# XFCE		- xfce4-goodies
+-- pacman -S xfce4
+
+## The goodies package installs a lot of useless stuff
+## Here's a one-liner for xfce4 instead of using the xfce4-goodies.
+-- pacman -S mousepad vlc thunar-archive-plugin thunar-media-tags-plugin xfce4-artwork xfce4-battery-plugin xfce4-clipman-plugin xfce4-datetime-plugin xfce4-dict xfce4-notifyd xfce4-pulseaudio-plugin xfce4-screenshooter xfce4-smartbookmark-plugin xfce4-taskmanager xfce4-timer-plugin xfce4-whiskermenu-plugin bluez blueman
+
+
+6. Enable Display Manager (To run at boot) & Icon Theme
+-- pacman -S papirus-icon-theme
+-- systemctl enable display-manager-name-here
+-- reboot
+
+
+If all is done correctly, you should be greeted with the login screen
+
+
+## Setup Sound:
+pulseaudio
+sof-firmware
+alsa-utils
+alsa-ucm-conf
