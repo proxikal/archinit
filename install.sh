@@ -17,6 +17,5 @@ done
 
 
 echo "There Are: ${#PKGS[@]} Items in this array."
-echo "cooper -S ${PKGS[@]}"
-
-# pacman -S ${PKGS[@]}
+echo "Loading Packages..."
+pacman -S ${PKGS[@]}
