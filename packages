@@ -35,7 +35,6 @@ xfce4-pulseaudio-plugin
 xfce4-screenshooter
 xfce4-smartbookmark-plugin
 xfce4-taskmanager
-xfce4-timer-plugin
 xfce4-whiskermenu-plugin
 bluez
 blueman
@@ -44,3 +43,5 @@ pulseaudio
 sof-firmware
 alsa-utils
 alsa-ucm-conf
+base-devel
+terminator
